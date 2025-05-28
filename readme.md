@@ -7,7 +7,9 @@ Caas - Custom Ai ability system
    Description:
    ------------
    A lightweight system that aims to control conditionals for units in general to use a myriad of custom abilities from any
-   different types of abilities in the warcraft 3 engine. Initially designed for AI heroes in my custom map, but can be used for any unit.
+   different types of abilities in the warcraft 3 engine. It is well known that the base warcraft 3 AI system does not control every ability correctly
+   this system aims to be a backbone for the usage of any ability in-game for many supported conditionals present here.
+   Initially designed for AI heroes in my custom map, but can be used for any unit.
    By Ricardo Malafaia (darkprofeta).
    This library is also a final course work for my Information Systems degree, the system was made inside my custom map
    and improved in many ways to be more flexible and useful for any type of map and used as submission for the course. 
@@ -31,6 +33,7 @@ Caas - Custom Ai ability system
    - Allows to control conditionals like how much healthpoints or mana to decide whether to use abilities or not
    - Allows to control how many enemies are nearby to decide whether to use abilities or not
    - Allows to control if ability will be cast in a random target or the current target
+   - onAttack, onAttacked, onAcquireRange, onPeriod are some of the supported events
 
    ----
    API:

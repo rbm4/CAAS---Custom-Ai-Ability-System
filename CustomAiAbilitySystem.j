@@ -29,7 +29,7 @@ library CustomAiAbilitySystem /* version 0.1
     *   - Allows to control conditionals like how much healthpoints or mana to decide whether to use abilities or not
     *   - Allows to control how many enemies are nearby to decide whether to use abilities or not
     *   - Allows to control if ability will be cast in a random target or the current target
-    *
+    *   - onAttack, onAttacked, onAcquireRange, onPeriod are some of the supported events
     *   ----
     *   API:
     *   ----
