@@ -1,12 +1,15 @@
+------------
+Caas - Custom Ai ability system
+------------
 ************************************************************************************
 
    ------------
    Description:
    ------------
    A lightweight system that aims to control conditionals for units in general to use a myriad of custom abilities from any
-   different types of abilities. Initially designed for AI heroes in my custom map, but can be used for any unit.
-   By Ricardo (darkprofeta).
-   This library is also a final course work for my Computer Science degree, the system was made inside my custom map
+   different types of abilities in the warcraft 3 engine. Initially designed for AI heroes in my custom map, but can be used for any unit.
+   By Ricardo Malafaia (darkprofeta).
+   This library is also a final course work for my Information Systems degree, the system was made inside my custom map
    and improved in many ways to be more flexible and useful for any type of map and used as submission for the course. 
 
    -------------------
