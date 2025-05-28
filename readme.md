@@ -68,7 +68,3 @@ Caas - Custom Ai ability system
    Simply copy and paste the Custom Ai Ability System folder into your map.
    I personally recommend you to take a look at the examples folder to see how to use the system properly
 
-   ---------------------
-   Global configuration:
-   ---------------------
-/

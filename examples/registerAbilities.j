@@ -1,6 +1,6 @@
-/*   onAttack.j
+/*  
     This script is part of the CustomAiAbilitySystem 
-    It is used to register abilities for the AI to use by giving the ability code, he ability target type as integer, the range to check for nearby enemies and he ability orderId
+    It is used to register abilities for the AI to use by giving the ability code, the ability target type as integer, the range to check for nearby enemies and he ability orderId
     // These are the types of targets that can be used with the custom abilities
     public constant integer TARGET_TYPE_POINT = 1
     public constant integer TARGET_TYPE_AREA = 2

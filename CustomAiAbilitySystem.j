@@ -52,7 +52,7 @@ library CustomAiAbilitySystem /* version 0.1
     *
     *
     *   --------------
-    *   */ requires /*
+    *      requires 
     *   --------------
     *   CustomAiAbilitySystem has no requirements whatsoever.
     *
@@ -79,6 +79,7 @@ library CustomAiAbilitySystem /* version 0.1
         //udg_customAiAbilityTargetType     // Global Variable for GUI-friendly usage
         //udg_customAiUnitType              // Global Variable for GUI-friendly usage
         //udg_customAiHeroAbility           // Global Variable for GUI-friendly usage
+	    private integer	udg_registeredUnitTypeCount
     endglobals
 
     // Helper function to check if a unit is an enemy and alive
@@ -112,7 +113,6 @@ library CustomAiAbilitySystem /* version 0.1
             set udg_registeredUnitTypes[index] = unitTypeId
             set udg_registeredUnitTypeCount = udg_registeredUnitTypeCount + 1
             call SaveInteger(udg_customAiUnitTypesHash, unitTypeId, 0, 1) // Mark as registered
-            return true
         endif
 
     endfunction
@@ -140,11 +140,6 @@ library CustomAiAbilitySystem /* version 0.1
 
             // Check if the hero has the ability
             if GetUnitAbilityLevel(aiHero, abilityId) > 0  then
-                if IsAbilityOnCooldown(aiHero, abilityId) then
-                    // Debug: Ability is on cooldown
-                    set i = i + 1
-                    exitwhen false
-                endif
                 set targetType = LoadInteger(udg_customAiAbilitiesHash, abilityId, 0)
                 set castRange = LoadReal(udg_customAiAbilitiesHash, abilityId, 1)
                 set orderId = LoadStringBJ(2, abilityId, udg_customAiAbilitiesHash)
@@ -160,7 +155,7 @@ library CustomAiAbilitySystem /* version 0.1
                     endif
                     call DestroyGroup(nearbyEnemies)
                 elseif targetType == TARGET_TYPE_POINT then
-                    // Cast at a random point within range
+                    // Cast at a point within range
                     set nearbyEnemies = GetUnitsInRangeOfLocMatching(castRange, GetUnitLoc(aiHero), Condition(function IsEnemyUnitAlive))
                     set targetUnit = FirstOfGroup(nearbyEnemies)
                     if targetUnit != null then
