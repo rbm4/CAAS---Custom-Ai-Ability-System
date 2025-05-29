@@ -38,21 +38,21 @@ Caas - Custom Ai ability system
    ----
    API:
    ----
-   function RegisterCustomAbility(integer abilityId, integer targetType, real castRange, string orderId)
+    - function RegisterCustomAbility(integer abilityId, integer targetType, real castRange, string orderId)
      - Register a custom ability with the system, must be called on the initialization of the map ideally to register
     every use case of the custom abilities, many examples are shown on the examples folder.
 
-   function CastCustomAbilities(unit aiHero) -> Returns a boolean value
+    - function CastCustomAbilities(unit aiHero) -> Returns a boolean value
      - Function that will cast the custom abilities registered for the aiHero unit 
     (doesn't actually requires the unit to be an hero, can be any unit)
 
-   function IsAbilityOnCooldown(unit whichUnit) -> Returns a boolean value
+    - function IsAbilityOnCooldown(unit whichUnit) -> Returns a boolean value
      - Check if the a given ability is on cooldown for a unit
 
-   function IsEnemyUnitAlive() -> Returns a boolean value
+    - function IsEnemyUnitAlive() -> Returns a boolean value
      - Check if the unit is an enemy and alive
 
-   function RegisterUnitType(unit whichUnit) -> Returns a boolean value
+    - function RegisterUnitType(unit whichUnit) -> Returns a boolean value
      - Register a unit type to be used with the system
 
 
