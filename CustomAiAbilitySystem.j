@@ -79,7 +79,7 @@ library CustomAiAbilitySystem /* version 0.1
         //udg_customAiAbilityTargetType     // Global Variable for GUI-friendly usage
         //udg_customAiUnitType              // Global Variable for GUI-friendly usage
         //udg_customAiHeroAbility           // Global Variable for GUI-friendly usage
-	    private integer	udg_registeredUnitTypeCount
+		
     endglobals
 
     // Helper function to check if a unit is an enemy and alive
@@ -104,17 +104,18 @@ library CustomAiAbilitySystem /* version 0.1
         call SaveStringBJ(orderId, 2, abilityId, udg_customAiAbilitiesHash)    // Save orderId
     endfunction
 
-    function RegisterUnitType takes unit whichUnit returns nothing
-        local integer unitTypeId = GetUnitTypeId(whichUnit)
-        local integer index = udg_registeredUnitTypeCount
+    function RegisterUnitType takes nothing returns nothing
+        local integer unitTypeId = udg_customAiUnitType
+        local integer index = udg_customAiTypeCount
+        local integer result
 
-        // Check if the unit type is already registered
-        if LoadInteger(udg_customAiUnitTypesHash, unitTypeId, 0) == 0 then
-            set udg_registeredUnitTypes[index] = unitTypeId
-            set udg_registeredUnitTypeCount = udg_registeredUnitTypeCount + 1
-            call SaveInteger(udg_customAiUnitTypesHash, unitTypeId, 0, 1) // Mark as registered
-        endif
+        set udg_registeredUnitTypes[index] = unitTypeId
+        set udg_customAiTypeCount = udg_customAiTypeCount + 1
+        call SaveInteger(udg_customAiUnitTypesHash, unitTypeId, 0, 1)
 
+        set result = LoadInteger(udg_customAiUnitTypesHash, unitTypeId, 0)
+        call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "RegisterUnitType: unitTypeId = " + I2S(unitTypeId))
+        call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "RegisterUnitType: LoadInteger result = " + I2S(result))
     endfunction
 
     
@@ -129,7 +130,15 @@ library CustomAiAbilitySystem /* version 0.1
         local location targetPoint
         local boolean abilityUsed = false
         local string orderId
+	local integer result
 
+	if(udg_customAiUnitTypeControl) then
+            // Check if the unit type is registered
+            set result = LoadInteger(udg_customAiUnitTypesHash, GetUnitTypeId(aiHero), 0)
+            if result == 0 then
+                return false
+            endif
+        endif
 
 
         // Loop through registered abilities
