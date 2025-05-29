@@ -69,10 +69,12 @@ library CustomAiAbilitySystem /* version 0.1
     */
     globals
         // These are the types of targets that can be used with the custom abilities
-        public constant integer TARGET_TYPE_POINT = 1
-        public constant integer TARGET_TYPE_AREA = 2
-        public constant integer TARGET_TYPE_UNIT = 3
-        public constant integer TARGET_TYPE_NO_TARGET = 4
+        public constant integer TARGET_TYPE_POINT = 1           // Target type for point abilities
+        public constant integer TARGET_TYPE_AREA = 2            // Target type for area abilities
+        public constant integer TARGET_TYPE_UNIT = 3            // Target type for unit abilities
+        public constant integer TARGET_TYPE_NO_TARGET = 4       // Target type for abilities that do not require a target
+        public constant integer TARGET_TYPE_UNIT_ALLY = 5       // Target type for abilities that target allied units
+        public constant integer TARGET_TYPE_SELF = 6            // Target type for abilities that target the unit itself
         integer array udg_registeredAbilities // Array to store registered ability IDs
         integer array udg_registeredUnitTypes // Array to store registered unit types
         //udg_customAiAbility               // Global Variable for GUI-friendly usage
@@ -85,6 +87,11 @@ library CustomAiAbilitySystem /* version 0.1
     // Helper function to check if a unit is an enemy and alive
     function IsEnemyUnitAlive takes nothing returns boolean
         return IsUnitEnemy(GetFilterUnit(), GetOwningPlayer(udg_customAiHeroAbility)) and not IsUnitType(GetFilterUnit(), UNIT_TYPE_DEAD)
+    endfunction
+
+    // Helper function to check if a unit is an ally
+    function IsUnitAllyAlive takes nothing returns boolean
+        return IsUnitAlly(GetFilterUnit(), GetOwningPlayer(udg_customAiHeroAbility)) and not IsUnitType(GetFilterUnit(), UNIT_TYPE_DEAD)
     endfunction
 
     // Helper to check if ability is on cooldown, used to avoid triggering abilities that are not ready and prevent resource waste
@@ -128,16 +135,16 @@ library CustomAiAbilitySystem /* version 0.1
         local location targetPoint
         local boolean abilityUsed = false
         local string orderId
-	local integer result
+        local integer result
 
-	if(udg_customAiUnitTypeControl) then
+        if(udg_customAiUnitTypeControl) then
             // Check if the unit type is registered
             set result = LoadInteger(udg_customAiUnitTypesHash, GetUnitTypeId(aiHero), 0)
             if result == 0 then
                 return false
             endif
         endif
-	call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "casting ability")
+        //call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "casting ability")
 
 
         // Loop through registered abilities
@@ -195,6 +202,19 @@ library CustomAiAbilitySystem /* version 0.1
                         exitwhen false
                     endif
                     call DestroyGroup(nearbyEnemies)
+                elseif targetType == TARGET_TYPE_UNIT_ALLY then
+                    // Find a nearby random ally unit within cast range
+                    set nearbyEnemies = GetUnitsInRangeOfLocMatching(castRange, GetUnitLoc(aiHero), Condition(function IsUnitAllyAlive))
+                    set targetUnit = FirstOfGroup(nearbyEnemies)
+                    if targetUnit != null then
+                        call IssueTargetOrderBJ(aiHero, orderId, targetUnit )
+                        set abilityUsed = true
+                        exitwhen false
+                    endif
+                    call DestroyGroup(nearbyEnemies)
+                elseif targetType == TARGET_TYPE_SELF then
+                    call IssueTargetOrderBJ(aiHero, orderId, aiHero )
+                    set abilityUsed = true
                 endif
             endif
 
