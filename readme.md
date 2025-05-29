@@ -38,35 +38,35 @@ Caas - Custom Ai ability system
    ----
    API:
    ----
-    *function RegisterCustomAbility(integer unitTypeId, integer abilityId, integer targetType, real castRange, string orderId, integer minHp, integer minMana, integer minEnemies, boolean randomTarget)*
-      - Registers a custom ability for a specific unit type with detailed conditionals such as minimum HP, mana, number of enemies, and whether to use a random target. Should be called during map initialization for each ability/unit combination.
+  *function RegisterCustomAbility(integer unitTypeId, integer abilityId, integer targetType, real castRange, string orderId, integer minHp, integer minMana, integer minEnemies, boolean randomTarget)*
+    - Registers a custom ability for a specific unit type with detailed conditionals such as minimum HP, mana, number of enemies, and whether to use a random target. Should be called during map initialization for each ability/unit combination.
 
-    *function CastCustomAbilities(unit whichUnit) -> boolean*
-      - Attempts to cast any registered custom abilities for the given unit, based on the defined conditionals and current game state. Returns true if an ability was cast.
+  *function CastCustomAbilities(unit whichUnit) -> boolean*
+    - Attempts to cast any registered custom abilities for the given unit, based on the defined conditionals and current game state. Returns true if an ability was cast.
 
-    *function IsAbilityOnCooldown(unit whichUnit, integer abilityId) -> boolean*
-      - Checks if the specified ability is currently on cooldown for the given unit.
+  *function IsAbilityOnCooldown(unit whichUnit, integer abilityId) -> boolean*
+    - Checks if the specified ability is currently on cooldown for the given unit.
 
-    *function IsEnemyUnitAlive(unit whichUnit, unit targetUnit) -> boolean*
-      - Determines if the target unit is alive and considered an enemy of the given unit.
+  *function IsEnemyUnitAlive(unit whichUnit, unit targetUnit) -> boolean*
+    - Determines if the target unit is alive and considered an enemy of the given unit.
 
-    *function RegisterUnitType(integer unitTypeId) -> boolean*
-      - Registers a unit type to be managed by the system, enabling it to use custom abilities as defined.
+  *function RegisterUnitType(integer unitTypeId) -> boolean*
+    - Registers a unit type to be managed by the system, enabling it to use custom abilities as defined.
 
-    *function SetAbilityConditionals(integer unitTypeId, integer abilityId, integer minHp, integer minMana, integer minEnemies, boolean randomTarget)*
-      - Updates the conditionals for a registered ability, allowing dynamic adjustment of when and how abilities are used.
+  *function SetAbilityConditionals(integer unitTypeId, integer abilityId, integer minHp, integer minMana, integer minEnemies, boolean randomTarget)*
+    - Updates the conditionals for a registered ability, allowing dynamic adjustment of when and how abilities are used.
 
-    *function SetAbilityCastRange(integer unitTypeId, integer abilityId, real castRange)*
-      - Sets or updates the cast range for a registered ability for a specific unit type.
+  *function SetAbilityCastRange(integer unitTypeId, integer abilityId, real castRange)*
+    - Sets or updates the cast range for a registered ability for a specific unit type.
 
-    *function SetAbilityOrderId(integer unitTypeId, integer abilityId, string orderId)*
-      - Sets or updates the order ID used to cast the registered ability for a specific unit type.
+  *function SetAbilityOrderId(integer unitTypeId, integer abilityId, string orderId)*
+    - Sets or updates the order ID used to cast the registered ability for a specific unit type.
 
-    *function UnregisterCustomAbility(integer unitTypeId, integer abilityId)*
-      - Removes a previously registered custom ability from the system for a specific unit type.
+  *function UnregisterCustomAbility(integer unitTypeId, integer abilityId)*
+    - Removes a previously registered custom ability from the system for a specific unit type.
 
-    *function UnregisterUnitType(integer unitTypeId)*
-      - Removes a unit type and all its associated abilities from the system.
+  *function UnregisterUnitType(integer unitTypeId)*
+    - Removes a unit type and all its associated abilities from the system.
 
 
    --------------
