@@ -39,7 +39,6 @@ Caas - Custom Ai ability system
    API:
    ----
   **function RegisterCustomAbility(integer unitTypeId, integer abilityId, integer targetType, real castRange, string orderId, integer minHp, integer minMana, integer minEnemies, boolean randomTarget)**
-  --------------
     - Registers a custom ability for a specific unit type with detailed conditionals such as minimum HP, mana, number of enemies, and whether to use a random target. Should be called during map initialization for each ability/unit combination.
 
   **function CastCustomAbilities(unit whichUnit) -> boolean**
