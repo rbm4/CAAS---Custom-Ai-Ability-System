@@ -114,10 +114,8 @@ library CustomAiAbilitySystem /* version 0.1
         call SaveInteger(udg_customAiUnitTypesHash, unitTypeId, 0, 1)
 
         set result = LoadInteger(udg_customAiUnitTypesHash, unitTypeId, 0)
-        call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "RegisterUnitType: unitTypeId = " + I2S(unitTypeId))
-        call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "RegisterUnitType: LoadInteger result = " + I2S(result))
     endfunction
-
+    
     
     // Function to cast custom abilities
     function CastCustomAbilities takes unit aiHero returns boolean
@@ -139,6 +137,7 @@ library CustomAiAbilitySystem /* version 0.1
                 return false
             endif
         endif
+	call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "casting ability")
 
 
         // Loop through registered abilities
@@ -205,3 +204,5 @@ library CustomAiAbilitySystem /* version 0.1
         return abilityUsed
     endfunction 
 endlibrary
+
+
