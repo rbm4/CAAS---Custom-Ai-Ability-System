@@ -89,26 +89,14 @@ library CustomAiAbilitySystem /* version 0.1
         return IsUnitEnemy(GetFilterUnit(), GetOwningPlayer(udg_customAiHeroAbility)) and not IsUnitType(GetFilterUnit(), UNIT_TYPE_DEAD)
     endfunction
 
-    // Helper function to check if a unit is an ally
+    // Helper function to check if a unit is an ally and it is not the unit to cast the ability
     function IsUnitAllyAlive takes nothing returns boolean
-        return IsUnitAlly(GetFilterUnit(), GetOwningPlayer(udg_customAiHeroAbility)) and not IsUnitType(GetFilterUnit(), UNIT_TYPE_DEAD)
+        return GetFilterUnit() != udg_customAiHeroAbility and IsUnitAlly(GetFilterUnit(), GetOwningPlayer(udg_customAiHeroAbility)) and not IsUnitType(GetFilterUnit(), UNIT_TYPE_DEAD)
     endfunction
 
     // Helper to check if ability is on cooldown, used to avoid triggering abilities that are not ready and prevent resource waste
     function IsAbilityOnCooldown takes unit u, integer abilityId returns boolean
         return BlzGetUnitAbilityCooldownRemaining(u, abilityId) > 0
-    endfunction
-
-    // Function to register a custom ability
-    function RegisterCustomAbility takes integer abilityId, integer targetType, real castRange, string orderId returns nothing
-        local integer index = udg_registeredAbilityCount
-        set udg_registeredAbilities[index] = abilityId
-        set udg_registeredAbilityCount = udg_registeredAbilityCount + 1
-        
-
-        call SaveInteger(udg_customAiAbilitiesHash, abilityId, 0, targetType) // Save target type
-        call SaveReal(udg_customAiAbilitiesHash, abilityId, 1, castRange)    // Save cast range
-        call SaveStringBJ(orderId, 2, abilityId, udg_customAiAbilitiesHash)    // Save orderId
     endfunction
 
     function RegisterCustomAbilityWrapper takes nothing returns nothing
@@ -146,7 +134,11 @@ library CustomAiAbilitySystem /* version 0.1
         set result = LoadInteger(udg_customAiUnitTypesHash, unitTypeId, 0)
     endfunction
     
-    
+    function ResetOrderCd takes nothing returns nothing
+        local integer aiHeroId = LoadInteger(udg_customAiUnitTypesHash, GetHandleId(GetExpiredTimer()), 0)
+        call SaveBoolean(udg_customAiUnitTypesHash, aiHeroId, 1, false)
+        call DestroyTimer(GetExpiredTimer())
+    endfunction
     // Function to cast custom abilities
     function CastCustomAbilities takes unit aiHero returns boolean
         local integer i = 0
@@ -159,6 +151,22 @@ library CustomAiAbilitySystem /* version 0.1
         local boolean abilityUsed = false
         local string orderId
         local integer result
+        local timer t
+
+        // Cooldown check to avoid animation-lock and repeated orders processing
+        if LoadBoolean(udg_customAiUnitTypesHash, GetHandleId(aiHero), 1) == true then
+            // Cooldown active, skip casting
+            return false
+        endif
+
+        // Set cooldown flag for this unit
+        call SaveBoolean(udg_customAiUnitTypesHash, GetHandleId(aiHero), 1, true)
+
+        // Start a timer to remove cooldown after 1 second
+        set t = CreateTimer()
+        // Save the aiHero handle id in the timer hash so ResetOrderCd can access it
+        call SaveInteger(udg_customAiUnitTypesHash, GetHandleId(t), 0, GetHandleId(aiHero))
+        call TimerStart(t, 1.00, false, function ResetOrderCd)
 
         if(udg_customAiUnitTypeControl) then
             // Check if the unit type is registered
@@ -167,7 +175,7 @@ library CustomAiAbilitySystem /* version 0.1
                 return false
             endif
         endif
-        //call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "casting ability")
+        //call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Unit Registered.")
 
 
         // Loop through registered abilities
@@ -175,7 +183,7 @@ library CustomAiAbilitySystem /* version 0.1
             exitwhen i >= udg_registeredAbilityCount
             set abilityId = udg_registeredAbilities[i]
             set udg_customAiHeroAbility = aiHero
-
+            //call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Checking id: " + I2S(abilityId))
             // Check if the hero has the ability
             if GetUnitAbilityLevel(aiHero, abilityId) > 0  then
                 set targetType = LoadInteger(udg_customAiAbilitiesHash, abilityId, 0)
@@ -187,9 +195,9 @@ library CustomAiAbilitySystem /* version 0.1
                     set nearbyEnemies = GetUnitsInRangeOfLocMatching(castRange, GetUnitLoc(aiHero), Condition(function IsEnemyUnitAlive))
                     set targetUnit = FirstOfGroup(nearbyEnemies)
                     if targetUnit != null then
+                        call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Trying to use single target ability: " + I2S(abilityId))
                         call IssueTargetOrderBJ(aiHero, orderId, targetUnit )
                         set abilityUsed = true
-                        exitwhen false
                     endif
                     call DestroyGroup(nearbyEnemies)
                 elseif targetType == TARGET_TYPE_POINT then
@@ -201,7 +209,6 @@ library CustomAiAbilitySystem /* version 0.1
                         call IssuePointOrderLocBJ(aiHero, orderId, targetPoint )
                         call RemoveLocation(targetPoint)
                         set abilityUsed = true
-                        exitwhen false
                     endif
                     call DestroyGroup(nearbyEnemies)
                 elseif targetType == TARGET_TYPE_AREA then
@@ -213,7 +220,6 @@ library CustomAiAbilitySystem /* version 0.1
                         call IssuePointOrderLocBJ(aiHero, orderId, targetPoint )
                         call RemoveLocation(targetPoint)
                         set abilityUsed = true
-                        exitwhen false
                     endif
                     call DestroyGroup(nearbyEnemies)
                 elseif targetType == TARGET_TYPE_NO_TARGET then
@@ -222,7 +228,6 @@ library CustomAiAbilitySystem /* version 0.1
                     if CountUnitsInGroup(nearbyEnemies) >= 1 then
                         call IssueImmediateOrderBJ(aiHero, orderId )
                         set abilityUsed = true
-                        exitwhen false
                     endif
                     call DestroyGroup(nearbyEnemies)
                 elseif targetType == TARGET_TYPE_UNIT_ALLY then
@@ -232,7 +237,6 @@ library CustomAiAbilitySystem /* version 0.1
                     if targetUnit != null then
                         call IssueTargetOrderBJ(aiHero, orderId, targetUnit )
                         set abilityUsed = true
-                        exitwhen false
                     endif
                     call DestroyGroup(nearbyEnemies)
                 elseif targetType == TARGET_TYPE_SELF then
