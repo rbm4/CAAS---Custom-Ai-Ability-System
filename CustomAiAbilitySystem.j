@@ -111,6 +111,29 @@ library CustomAiAbilitySystem /* version 0.1
         call SaveStringBJ(orderId, 2, abilityId, udg_customAiAbilitiesHash)    // Save orderId
     endfunction
 
+    function RegisterCustomAbilityWrapper takes nothing returns nothing
+        // This function is a wrapper to allow GUI users to register custom abilities
+        local integer abilityRef = udg_customAiRegisterAbility
+        local integer targetType = udg_customAiRegisterAbilityTType
+        local real castRange = udg_customAiRegisterAbilityRange
+        local string orderId = udg_customAiRegisterAbilityOrderId
+        local boolean isRandom = udg_customAiRegisterAbilityRand
+        local integer mana = udg_customAiRegisterAbilityMana
+        local integer hp = udg_customAiRegisterAbilityHp
+        local integer enemies = udg_customAiRegisterAbilityEnem
+        local integer index = udg_registeredAbilityCount
+        set udg_registeredAbilities[index] = abilityRef
+        set udg_registeredAbilityCount = udg_registeredAbilityCount + 1
+
+        call SaveInteger(udg_customAiAbilitiesHash, abilityRef, 0, targetType)
+        call SaveReal(udg_customAiAbilitiesHash, abilityRef, 1, castRange)
+        call SaveStr(udg_customAiAbilitiesHash, abilityRef, 2, orderId)
+        call SaveBoolean(udg_customAiAbilitiesHash, abilityRef, 3, isRandom)
+        call SaveInteger(udg_customAiAbilitiesHash, abilityRef, 4, mana)
+        call SaveInteger(udg_customAiAbilitiesHash, abilityRef, 5, hp)
+        call SaveInteger(udg_customAiAbilitiesHash, abilityRef, 6, enemies)
+    endfunction
+
     function RegisterUnitType takes nothing returns nothing
         local integer unitTypeId = udg_customAiUnitType
         local integer index = udg_customAiTypeCount
