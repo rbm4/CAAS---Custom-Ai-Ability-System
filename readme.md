@@ -17,15 +17,11 @@ Caas - Custom Ai ability system
    -------------------
    Usage instruction:
    -------------------
-   The system will need for you to inform the ability ID, target type, cast range and order ID for each custom 
-   ability you want to register, do not use the same orderId for a given unit and avoid changing the original orderId
-   of the abilities you want to register.
+   The system will need for you to inform the ability ID, target type, cast range, order ID, health percentage, mana percentage, range, enemy numbers, if it should be a random target or not, for each custom ability you want to register. Do not use the same orderId for a given unit and avoid changing the original orderId of the abilities you want to register. The system also doesn't support multiple entries for the same ability, but it supports changing the behaviour of a given spell.
    
-   A good way to test the system is for you to have an player-controlled unit to have it cast an ability on the 
-   onDamage event, if an ability is not being cast you may want to double-check if you informed the correct target type
-   or conditionals for the ability.
+   A good way to test the system is for you to have an player-controlled unit to have it cast an ability on the onDamage event, if an ability is not being cast you may want to double-check if you informed the correct target type or conditionals for the ability.
    
-   Take your time and test one ability at a time.
+   Take your time and test one ability at a time. Some common pitfalls are using the wrong targe type for an ability (like AREA target for a holy light for example) or having too little range 
 
    ---------
    Features:
