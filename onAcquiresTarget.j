@@ -12,7 +12,6 @@ function Trig_onAcquiresTarget_Conditions takes nothing returns boolean
 endfunction
 
 function OnTargetAcquire takes nothing returns nothing
-    call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Target acquired. " )
     call CastCustomAbilities(GetTriggerUnit())
 endfunction
 
