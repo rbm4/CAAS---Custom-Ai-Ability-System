@@ -7,23 +7,21 @@ Caas - Custom Ai ability system
    Description:
    ------------
    A lightweight system that aims to control conditionals for units in general to use a myriad of custom abilities from any
-   different types of abilities in the warcraft 3 engine. It is well known that the base warcraft 3 AI system does not control every ability correctly
-   this system aims to be a backbone for the usage of any ability in-game for many supported conditionals present here.
-   Initially designed for AI heroes in my custom map, but can be used for any unit.
+   different types of abilities in the warcraft 3 engine. It is well known that the base warcraft 3 AI system does not control every ability correctly, this system aims to be a backbone for the usage of any ability in-game for many supported conditionals present here.
+   Initially designed for AI heroes in my custom map, it can be used for any unit.
    By Ricardo Malafaia (darkprofeta).
+   
    This library is also a final course work for my Information Systems degree, the system was made inside my custom map
    and improved in many ways to be more flexible and useful for any type of map and used as submission for the course. 
 
    -------------------
    Usage instruction:
    -------------------
-   The system will need for you to inform the ability ID, target type, cast range and order ID for each custom 
-   ability you want to register, do not use the same orderId for a given unit and avoid changing the original orderId
-   of the abilities you want to register.
-   A good way to test the system is for you to have an player-controlled unit to have it cast an ability on the 
-   onDamage event, if an ability is not being cast you may want to double-check if you informed the correct target type
-   or conditionals for the ability. 
-   Take your time and test one ability at a time.
+   The system will need for you to inform the ability ID, target type, cast range, order ID, health percentage, mana percentage, range, enemy numbers, if it should be a random target or not, for each custom ability you want to register. Do not use the same orderId for a given unit and avoid changing the original orderId of the abilities you want to register. The system also doesn't support multiple entries for the same ability, but it supports changing the behaviour of a given spell.
+   
+   A good way to test the system is for you to have an player-controlled unit to have it cast an ability on the onDamage event, if an ability is not being cast you may want to double-check if you informed the correct target type or conditionals for the ability.
+   
+   Take your time and test one ability at a time. Some common pitfalls are using the wrong targe type for an ability (like AREA target for a holy light for example) or having too little range 
 
    ---------
    Features:
