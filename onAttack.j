@@ -1,10 +1,9 @@
-/*
-This is a generated trigger file for the event "onAttack", it triggers when a unit is damaged. It inputs the attacking unit as the one to do the ability cast.
-*/
-
 function Trig_onAttack_Conditions takes nothing returns boolean
-    if ( not ( IsUnitType(GetEventDamageSource(), UNIT_TYPE_HERO) == true ) ) then
+    if ( udg_customAiHeroControl and not ( IsUnitType(GetEventDamageSource(), UNIT_TYPE_HERO) == true ) ) then
         return false
+    endif
+    if ( udg_customAiPlayerController ) then
+		return true
     endif
     if ( not ( GetPlayerController(GetOwningPlayer(GetEventDamageSource())) != MAP_CONTROL_USER ) ) then
         return false

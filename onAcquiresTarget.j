@@ -12,6 +12,7 @@ function Trig_onAcquiresTarget_Conditions takes nothing returns boolean
 endfunction
 
 function OnTargetAcquire takes nothing returns nothing
+    //call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Target acquired: " + I2S(GetHandleId(GetTriggerUnit())))
     call CastCustomAbilities(GetTriggerUnit())
 endfunction
 
@@ -20,6 +21,7 @@ function onAcquiresTarget_UnitDies takes nothing returns nothing
     local integer uid = GetHandleId(u)
     local trigger t_acquire = LoadTriggerHandle(udg_onAcquiresTarget_Hashtable, uid, 0)
     local trigger t_death = LoadTriggerHandle(udg_onAcquiresTarget_Hashtable, uid, 1)
+    
 
     // Destroy the triggers associated with this unit
     if t_acquire != null then
@@ -42,6 +44,7 @@ function Trig_onAcquiresTarget_Actions takes nothing returns nothing
     local integer uid = GetHandleId(u)
     local trigger t_acquire = CreateTrigger()
     local trigger t_death = CreateTrigger()
+    call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Initializing onAcquireTarget. " )
 
     // Register the acquired target event for this unit
     call TriggerRegisterUnitEvent(t_acquire, u, EVENT_UNIT_ACQUIRED_TARGET)

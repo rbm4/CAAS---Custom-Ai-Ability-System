@@ -40,8 +40,8 @@ function Trig_onMoveOrder_Actions takes nothing returns nothing
     local location loc = GetOrderPointLoc()
     local timer t = CreateTimer()
     local integer id = GetHandleId(t)
-
-    //call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onMoveOrder - cast: " + I2S(GetHandleId(u)))
+    
+    call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onMoveOrder - cast: " + I2S(GetHandleId(u)))
     call CastCustomAbilities(u)
     // Save unit and location for timer callback
     call SaveUnitHandle(udg_customAiAbilitiesHash, id, 0, u)
