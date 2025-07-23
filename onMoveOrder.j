@@ -2,7 +2,7 @@ function Trig_onMoveOrder_Conditions takes nothing returns boolean
     if ( udg_customAiHeroControl and not ( IsUnitType(GetTriggerUnit(), UNIT_TYPE_HERO) == true ) ) then
         return false
     endif
-    if ( not ( GetIssuedOrderIdBJ() == String2OrderIdBJ("smart") ) ) then
+    if ( not ( GetIssuedOrderIdBJ() == String2OrderIdBJ("smart") or GetIssuedOrderIdBJ() == String2OrderIdBJ("move") ) ) then
         return false
     endif
     if ( udg_customAiPlayerController ) then
@@ -17,6 +17,8 @@ function Trig_onMoveOrder_TimerCallback takes nothing returns nothing
     local timer t = GetExpiredTimer()
     local unit u = LoadUnitHandle(udg_customAiAbilitiesHash, GetHandleId(t), 0)
     local location loc = LoadLocationHandle(udg_customAiAbilitiesHash, GetHandleId(t), 1)
+
+    
 
     call DisableTrigger( gg_trg_onMoveOrder )
     // Only issue the order if the unit is idle (order id 0)
@@ -41,12 +43,13 @@ function Trig_onMoveOrder_Actions takes nothing returns nothing
     local timer t = CreateTimer()
     local integer id = GetHandleId(t)
     
-    call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "onMoveOrder - cast: " + I2S(GetHandleId(u)))
-    call CastCustomAbilities(u)
+    
+    call CastCustomAbilities(u,udg_ON_MOVE_ORDER_EVENT)
     // Save unit and location for timer callback
+    //call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "OnMoveOrder. " )
     call SaveUnitHandle(udg_customAiAbilitiesHash, id, 0, u)
     call SaveLocationHandle(udg_customAiAbilitiesHash, id, 1, loc)
-    call TimerStart(t, 0.5, false, function Trig_onMoveOrder_TimerCallback)
+    call TimerStart(t, 0.8, false, function Trig_onMoveOrder_TimerCallback)
     
     set u = null
     set loc = null

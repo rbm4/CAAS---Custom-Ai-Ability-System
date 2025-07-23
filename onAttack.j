@@ -22,4 +22,3 @@ function InitTrig_onAttack takes nothing returns nothing
     call TriggerAddCondition( gg_trg_onAttack, Condition( function Trig_onAttack_Conditions ) )
     call TriggerAddAction( gg_trg_onAttack, function Trig_onAttack_Actions )
 endfunction
-

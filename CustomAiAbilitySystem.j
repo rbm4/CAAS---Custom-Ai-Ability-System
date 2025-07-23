@@ -79,6 +79,7 @@ library CustomAiAbilitySystem /* version 0.1
         public constant integer TARGET_TYPE_SELF = 6                            // Target type for abilities that target the unit itself
         public constant integer TARGET_TYPE_NO_TARGET_DEAD_CHECK = 7            // Target type for abilities that look for dead units nearby, like animate dead
         public constant integer TARGET_TYPE_NO_TARGET_DEAD_CHECK_ALLY = 8 		// Target type for abilities that look for dead units nearby, but only for friendly units
+        public constant boolean udg_preferHeroTargets = true
         private constant string ORDER_ID_NONE = "none" // Default order ID for no target abilities
         private constant string ORDER_ID_STOP = "stop"
         private constant string ORDER_ID_MOVE = "move"
@@ -96,7 +97,10 @@ library CustomAiAbilitySystem /* version 0.1
 
     // Helper function to check if a unit is an enemy and alive
     function IsEnemyUnitAlive takes nothing returns boolean
-        return IsUnitEnemy(GetFilterUnit(), GetOwningPlayer(udg_customAiHeroAbility)) and not IsUnitType(GetFilterUnit(), UNIT_TYPE_DEAD)
+        local player p = GetOwningPlayer(udg_customAiHeroAbility)
+        local boolean result = IsUnitEnemy(GetFilterUnit(), p) and not IsUnitType(GetFilterUnit(), UNIT_TYPE_DEAD)
+        set p = null
+        return result
     endfunction
 
     // Helper function to check if a unit is an ally and it is not the unit to cast the ability
@@ -140,6 +144,12 @@ library CustomAiAbilitySystem /* version 0.1
         local integer hp = udg_customAiRegisterAbilityHp
         local integer enemies = udg_customAiRegisterAbilityEnem
         local integer index = udg_registeredAbilityCount
+        local boolean onAttack = udg_onAttack
+        local boolean onDamaged = udg_onDamaged
+        local boolean onAcquiresTarget = udg_onAcquiresTarget
+        local boolean onAttackOrder = udg_onAttackOrder
+        local boolean onMoveOrder = udg_onMoveOrder
+
 
         // Check if the ability is already registered
         if LoadInteger(udg_customAiAbilitiesHash, abilityRef, 0) != 0 then
@@ -160,6 +170,11 @@ library CustomAiAbilitySystem /* version 0.1
         call SaveInteger(udg_customAiAbilitiesHash, abilityRef, 4, mana)
         call SaveInteger(udg_customAiAbilitiesHash, abilityRef, 5, hp)
         call SaveInteger(udg_customAiAbilitiesHash, abilityRef, 6, enemies)
+        call SaveBoolean(udg_customAiAbilitiesHash, abilityRef, 7, onAttack)
+        call SaveBoolean(udg_customAiAbilitiesHash, abilityRef, 8, onDamaged)
+        call SaveBoolean(udg_customAiAbilitiesHash, abilityRef, 9, onAcquiresTarget)
+        call SaveBoolean(udg_customAiAbilitiesHash, abilityRef, 10, onAttackOrder)
+        call SaveBoolean(udg_customAiAbilitiesHash, abilityRef, 11, onMoveOrder)
 
         return true
     endfunction
@@ -191,6 +206,7 @@ library CustomAiAbilitySystem /* version 0.1
         local real x1 = GetUnitX(source)
         local real y1 = GetUnitY(source)
         local integer count = 0
+        local unit closestHero = null
 
         if isDebuggingCustomAi then
             call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "GetClosestUnitInGroup: Starting search for closest unit.")
@@ -199,13 +215,17 @@ library CustomAiAbilitySystem /* version 0.1
         loop
             exitwhen u == null
             set count = count + 1
-            set dist =(GetUnitX(u) - x1) *(GetUnitX(u) - x1) +(GetUnitY(u) - y1) *(GetUnitY(u) - y1)
+            set dist = (GetUnitX(u) - x1) * (GetUnitX(u) - x1) + (GetUnitY(u) - y1) * (GetUnitY(u) - y1)
             if isDebuggingCustomAi then
                 call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Checking unit #" + I2S(count) + ": " + GetUnitName(u) + " at (" + R2S(GetUnitX(u)) + ", " + R2S(GetUnitY(u)) + "), dist^2 = " + R2S(dist))
             endif
             if dist < minDist then
                 set minDist = dist
                 set targetUnit = u
+                // Check if the current unit is a hero and save in a variable
+                if IsUnitType(u, UNIT_TYPE_HERO) then
+                    set closestHero = u
+                endif
                 if isDebuggingCustomAi then
                     call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "New closest unit: " + GetUnitName(u) + " (dist^2 = " + R2S(dist) + ")")
                 endif
@@ -222,6 +242,12 @@ library CustomAiAbilitySystem /* version 0.1
             endif
         endif
 
+        if(udg_preferHeroTargets and closestHero != null) then
+            if isDebuggingCustomAi then
+                call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Prefer hero target found: " + GetUnitName(closestHero))
+            endif
+            return closestHero
+        endif
         return targetUnit
     endfunction
 
@@ -429,6 +455,47 @@ library CustomAiAbilitySystem /* version 0.1
         return abilityUsed
     endfunction
 
+    // Save alliances before changing controller (used to disable AI control)
+    function SaveAllPlayerAlliances takes player whichPlayer returns nothing
+        local integer i = 0
+        local player p = null
+        loop
+            exitwhen i >= bj_MAX_PLAYERS
+            set p = Player(i)
+            call SaveBoolean(udg_customAiUnitTypesHash, GetHandleId(whichPlayer), i, GetPlayerAlliance(whichPlayer, p, ALLIANCE_PASSIVE))
+            call SaveBoolean(udg_customAiUnitTypesHash, GetHandleId(p), GetHandleId(whichPlayer), GetPlayerAlliance(p, whichPlayer, ALLIANCE_PASSIVE))
+            set p = null
+            set i = i + 1
+        endloop
+    endfunction
+
+    // Restore alliances after changing controller (used to reinstate alliances after disabling AI control)
+    function RestoreAllPlayerAlliances takes player whichPlayer returns nothing
+        local integer i = 0
+        local boolean wasAlly
+        local player p
+        loop
+            exitwhen i >= bj_MAX_PLAYERS
+            set p = Player(i)
+            set wasAlly = LoadBoolean(udg_customAiUnitTypesHash, GetHandleId(whichPlayer), i)
+            call SetPlayerAlliance(whichPlayer, p, ALLIANCE_PASSIVE, wasAlly)
+            set wasAlly = LoadBoolean(udg_customAiUnitTypesHash, GetHandleId(p), GetHandleId(whichPlayer))
+            call SetPlayerAlliance(p, whichPlayer, ALLIANCE_PASSIVE, wasAlly)
+            set p = null
+            set i = i + 1
+        endloop
+    endfunction
+
+    function DisableAiControl takes player whichPlayer returns nothing
+        // This function is used to disable AI control for a player, useful for debugging or manual control of the abilities
+        // First we must save the player alliances
+        call SaveAllPlayerAlliances(whichPlayer)
+        // then we set player control to neutral
+        call SetPlayerController(whichPlayer, MAP_CONTROL_NEUTRAL)
+        // Reinstate original alliances
+        call RestoreAllPlayerAlliances(whichPlayer)
+    endfunction
+
 
 
     // Function to cast custom abilities
@@ -538,7 +605,7 @@ library CustomAiAbilitySystem /* version 0.1
                     call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Max mana: " + R2S(GetUnitState(aiHero, UNIT_STATE_MAX_MANA)))
                     call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Mana threshold: " + I2S(mana))
                     if(GetUnitState(aiHero, UNIT_STATE_MAX_MANA) > 0) then
-                        call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Mana percent: " + R2S((GetUnitState(aiHero, UNIT_STATE_MANA) / (GetUnitState(aiHero, UNIT_STATE_MAX_MANA) * 1.00)) * 100))
+                        call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Mana percent: " + R2S((GetUnitState(aiHero, UNIT_STATE_MANA) /(GetUnitState(aiHero, UNIT_STATE_MAX_MANA) * 1.00)) * 100))
                     else
                         call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Max mana is zero, cannot calculate ratio.")
                     endif
@@ -566,7 +633,7 @@ library CustomAiAbilitySystem /* version 0.1
                     call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "HP Threshold: " + I2S(hp))
                 endif
                 
-                if((GetUnitState(aiHero, UNIT_STATE_LIFE) / GetUnitState(aiHero, UNIT_STATE_MAX_LIFE)) * 100) >(hp) then
+                if((GetUnitState(aiHero, UNIT_STATE_LIFE) / GetUnitState(aiHero, UNIT_STATE_MAX_LIFE)) * 100) > (hp) then
                     // Not enough missing health percentage, skip this ability
                     if isDebuggingCustomAi then
                         call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, "Should skip this cast based on hp.")
